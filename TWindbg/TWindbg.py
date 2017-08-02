@@ -177,7 +177,7 @@ class ContextHandler(pykd.eventHandler):
                 val = pykd.loadPtrs(addr, 1)[0]
                 ret.append(val)
                 addr = val
-            except MemoryException: # no more dereference
+            except pykd.MemoryException: # no more dereference
                 break
 
         return ret
