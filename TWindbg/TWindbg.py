@@ -34,7 +34,7 @@ class Context():
             11: "overflow",
             14: "nested",
             16: "resume",
-            17: "virtualx86",
+            17: "virtualx86"
         }
         self.is_changed = {}
         self.sp_name = ""
@@ -61,7 +61,6 @@ class Context():
             self.is_changed[reg_name] = False
             
     def update_regs(self):
-        # for general regs
         for reg_name in self.regs_name + self.seg_regs_name:
             reg_data = pykd.reg(reg_name)
             if reg_data != self.regs[reg_name]: # is changed
@@ -81,7 +80,7 @@ class ContextHandler(pykd.eventHandler):
         self.context = context
         
     def onExecutionStatusChange(self, status):
-        if status == pykd.executionStatus.Break: # step, continue, ...
+        if status == pykd.executionStatus.Break: # step, trace, ...
             self.context.update_regs()
             self.print_context()
 
@@ -96,7 +95,11 @@ class ContextHandler(pykd.eventHandler):
         pykd.dprintln(color.yellow("[------------------------------------------------------------------------------------------------------------]"), dml=True)
         
     def print_regs(self):
-        # general regs
+        self.print_general_regs()
+        self.print_seg_regs()
+        self.print_eflags()
+        
+    def print_general_regs(self):
         for reg_name in self.context.regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:3}: {:#x}'.format(reg_name.upper(), reg_data)
@@ -107,8 +110,8 @@ class ContextHandler(pykd.eventHandler):
                 reg_color = color.lime
             
             pykd.dprintln(reg_color(reg_str), dml=True)
-        
-        # segment regs
+
+    def print_seg_regs(self):
         first_print = True
         for reg_name in self.context.seg_regs_name:
             reg_data = self.context.regs[reg_name]
@@ -124,8 +127,8 @@ class ContextHandler(pykd.eventHandler):
             else:
                 pykd.dprint(" | " + reg_color(reg_str), dml=True)
         pykd.dprintln("")
-
-        # eflags reg
+    
+    def print_eflags(self):
         eflags = pykd.reg('efl')
         eflags_str = color.green("EFLAGS: {:#x}".format(eflags))
         eflags_str += " ["
@@ -138,7 +141,7 @@ class ContextHandler(pykd.eventHandler):
                 eflags_str += color.green(flag_name)
         eflags_str += " ]"
         pykd.dprintln(eflags_str, dml=True)
-    
+
     def print_code(self):
         pc = self.context.pc
         # print the previous assembly ( 3 lines )
@@ -162,7 +165,7 @@ class ContextHandler(pykd.eventHandler):
         sp = self.context.sp
         for i in xrange(8):
             cur_sp = sp + i*size
-            pykd.dprint("{:02d}:{:04x}|".format(i, i*size))
+            pykd.dprint("{:02d}:{:04x}| ".format(i, i*size))
             ptr_values = self.smart_dereference(cur_sp)
             stack_str = '{:#x}'.format(cur_sp)
             for val in ptr_values:
