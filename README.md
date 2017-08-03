@@ -1,3 +1,9 @@
+[![Python 2.7](https://img.shields.io/badge/Python-2.7-green.svg)](https://github.com/bruce30262/TWindbg/)
+[![Code Climate](https://codeclimate.com/github/bruce30262/TWindbg/badges/gpa.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
+[![Issue Count](https://codeclimate.com/github/bruce30262/TWindbg/badges/issue_count.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
+
+
 # TWindbg
 PEDA-like debugger UI for WinDbg
 
