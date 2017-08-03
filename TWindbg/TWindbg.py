@@ -6,13 +6,16 @@ import sys
 import traceback
 
 ARCH = None
+PTRMASK = None
 MAX_DEREF = 20
 
 cpu_mode = pykd.getCPUMode() 
 if cpu_mode == pykd.CPUType.I386:
     ARCH = 'x86'
+    PTRMASK = 0xffffffff
 elif cpu_mode == pykd.CPUType.AMD64:
     ARCH = 'x64'
+    PTRMASK = 0xffffffffffffffff
 else:
     pykd.dprintln("CPU mode: {} not supported.".format(cpu_mode))
     sys.exit(-1)
@@ -166,24 +169,31 @@ class ContextHandler(pykd.eventHandler):
         for i in xrange(8):
             cur_sp = sp + i*size
             pykd.dprint("{:02d}:{:04x}| ".format(i, i*size))
-            ptr_values = self.smart_dereference(cur_sp)
+            ptr_values, is_cylic = self.smart_dereference(cur_sp)
             stack_str = '{:#x}'.format(cur_sp)
             for val in ptr_values:
                 stack_str += " --> {:#x}".format(val)
+
+            if is_cylic:   
+                stack_str += color.dark_red(" ( cylic dereference )")
             
-            pykd.dprintln(stack_str)
+            pykd.dprintln(stack_str, dml=True)
             
     def smart_dereference(self, addr):
-        ret = []
+        ptr_values, is_cyclic = [], False
         for _ in xrange(MAX_DEREF):
             try:
-                val = pykd.loadPtrs(addr, 1)[0]
-                ret.append(val)
-                addr = val
+                val = pykd.loadPtrs(addr, 1)[0] & PTRMASK
+                ptr_values.append(val)
+                if val in ptr_values[:-1:] or val == addr: # cyclic dereference
+                    is_cyclic = True
+                    break
+                else:
+                    addr = val
             except pykd.MemoryException: # no more dereference
                 break
 
-        return ret
+        return ptr_values, is_cyclic
 
 context = Context()
 context_handler = ContextHandler(context)
