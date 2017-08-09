@@ -9,17 +9,32 @@ ARCH = None
 PTRMASK = None
 MAX_DEREF = 20
 
-cpu_mode = pykd.getCPUMode() 
-if cpu_mode == pykd.CPUType.I386:
-    ARCH = 'x86'
-    PTRMASK = 0xffffffff
-elif cpu_mode == pykd.CPUType.AMD64:
-    ARCH = 'x64'
-    PTRMASK = 0xffffffffffffffff
-else:
-    pykd.dprintln("CPU mode: {} not supported.".format(cpu_mode))
-    sys.exit(-1)
+def init_arch():
+    global ARCH, PTRMASK
+    cpu_mode = pykd.getCPUMode() 
+    if cpu_mode == pykd.CPUType.I386:
+        ARCH = 'x86'
+        PTRMASK = 0xffffffff
+    elif cpu_mode == pykd.CPUType.AMD64:
+        ARCH = 'x64'
+        PTRMASK = 0xffffffffffffffff
+    else:
+        pykd.dprintln("CPU mode: {} not supported.".format(cpu_mode))
+        sys.exit(-1)
 
+def get_context_handler():
+    context, context_handler = None, None
+    if 'context' not in globals():
+        context = Context()
+    else:
+        context = globals()['context']
+    if 'context_handler' not in globals():
+        context_handler = ContextHandler(context)
+    else:
+        context_handler = globals()['context_handler']
+ 
+    return context, context_handler
+ 
 class Context():
     def __init__(self):
         self.regs_name = []
@@ -147,16 +162,16 @@ class ContextHandler(pykd.eventHandler):
 
     def print_code(self):
         pc = self.context.pc
-        # print the previous assembly ( 3 lines )
-        before_pc = pykd.dbgCommand("ub {:#x} L3".format(pc))
-        pykd.dprint(before_pc)
-        # print the current pc position ( 5 lines )
-        after_pc = pykd.dbgCommand("u {:#x} L5".format(pc)).split("\n")
-        for index,code in enumerate(after_pc[1::]):
-            if index == 0: # current pc, highlight
-                pykd.dprintln(color.lime_highlight(code), dml=True)
+        for offset in xrange(-3, 6): # pc-3 ~ pc+5
+            addr = pykd.disasm().findOffset(offset)
+            inst = pykd.disasm().disasm(addr)
+            start = len(inst.split(" ")[0])
+            inst = inst[start::] # strip the address info
+            code_str = "{:#x}: {}".format(addr, inst)
+            if addr == pc: # current pc, highlight
+                pykd.dprintln(color.lime_highlight(code_str), dml=True)
             else:
-                pykd.dprintln(code)
+                pykd.dprintln(code_str)
     
     def print_stack(self):
         size = None
@@ -195,5 +210,5 @@ class ContextHandler(pykd.eventHandler):
 
         return ptr_values, is_cyclic
 
-context = Context()
-context_handler = ContextHandler(context)
+init_arch()
+context, context_handler = get_context_handler()
