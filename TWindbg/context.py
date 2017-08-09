@@ -3,8 +3,11 @@ import color
 import sys
 import traceback
 
+from utils import *
+
 ARCH = None
 PTRMASK = None
+PTRSIZE = None
 MAX_DEREF = 20
 
 def init_arch():
@@ -13,11 +16,13 @@ def init_arch():
     if cpu_mode == pykd.CPUType.I386:
         ARCH = 'x86'
         PTRMASK = 0xffffffff
+        PTRSIZE = 4
     elif cpu_mode == pykd.CPUType.AMD64:
         ARCH = 'x64'
         PTRMASK = 0xffffffffffffffff
+        PTRSIZE = 8
     else:
-        pykd.dprintln("CPU mode: {} not supported.".format(cpu_mode))
+        print_err("CPU mode: {} not supported.".format(cpu_mode))
         sys.exit(-1)
 
 def init_context_handler():
@@ -166,16 +171,10 @@ class ContextHandler(pykd.eventHandler):
                 pykd.dprintln(code_str)
     
     def print_stack(self):
-        size = None
-        if ARCH == 'x86':
-            size = 4
-        else:
-            size = 8
-            
         sp = self.context.sp
         for i in xrange(8):
-            cur_sp = sp + i*size
-            pykd.dprint("{:02d}:{:04x}| ".format(i, i*size))
+            cur_sp = sp + i * PTRSIZE
+            pykd.dprint("{:02d}:{:04x}| ".format(i, i * PTRSIZE))
             ptr_values, is_cylic = self.smart_dereference(cur_sp)
             stack_str = '{:#x}'.format(cur_sp)
             for val in ptr_values:
