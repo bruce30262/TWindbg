@@ -40,7 +40,7 @@ def print_nline_ptrs(start_addr, line_num):
             raise CmdExecError("Invalid memory address: {:#x}".format(addr))
         else:
             print_ptrs(addr)  
-            
+           
 class CmdExecError(Exception):
     def __init__(self, errmsg):
         self.errmsg = errmsg
@@ -48,36 +48,28 @@ class CmdExecError(Exception):
 class Command():
     def ctx(self, *args):
         """ctx: print the current context"""
-        try:
-            context.context_handler.print_context()
-        except Exception: # pass the exception to parent
-            raise
+        context.context_handler.print_context()
 
     def telescope(self, args):
         """telescope: Display memory content at an address with smart dereferences
         Usage: telescope/tel [addr] [line to display, default=8, maximum=100] 
         """
-        try:
-            if len(args) == 0 or len(args) > 2:
-                raise CmdExecError("Invalid argument number")
-            
-            start_addr, line_num = None, None
-            # check valid address
-            is_addr, errmsg = check_valid_addr(args[0])
-            if not is_addr:
-                raise CmdExecError(errmsg)
-            else:
-                start_addr = to_addr(args[0])
-            # check valid line number
-            line_num = 8 if len(args) == 1 else to_int(args[1])
-            if not check_in_range(line_num, 1, 100):
-                raise CmdExecError("Invalid line number: {}, should be 1 ~ 100".format(args[1]))
-            
-            print_nline_ptrs(start_addr, line_num)
-            
-        except Exception:
-            raise
-          
+        # check argument number
+        if len(args) == 0 or len(args) > 2:
+            raise CmdExecError("Invalid argument number")
+        # get start address and line number
+        start_addr = to_addr(args[0])
+        line_num = 8 if len(args) == 1 else to_int(args[1])
+        # check valid address
+        is_addr, errmsg = check_valid_addr(args[0])
+        if not is_addr:
+            raise CmdExecError(errmsg)
+        # check valid line number
+        if not check_in_range(line_num, 1, 100):
+            raise CmdExecError("Invalid line number: {}, should be 1 ~ 100".format(args[1]))
+        
+        print_nline_ptrs(start_addr, line_num)
+
 class CommandHandler():
     def __init__(self, func):
         self.func = func
@@ -91,6 +83,7 @@ class CommandHandler():
         except Exception:
             traceback.print_exc()
                 
+
 init_command_obj()
 if __name__ == "__main__":            
     if len(sys.argv) >= 2: # user input TWindbg command

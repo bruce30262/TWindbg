@@ -44,6 +44,7 @@ def check_in_range(val, low, up):
         return False
 
 def check_valid_addr(val):
+    """ check if val is valid memory address """
     addr, real_val = to_addr(val), get_expr(val)
     if not addr:
         errmsg = "Invalid address: "
