@@ -3,7 +3,6 @@ import sys
 import context
 import color
 import traceback
-import ctypes
 
 from utils import *
 
@@ -36,9 +35,9 @@ def print_ptrs(addr):
     pykd.dprintln("{:#x}:{}".format(addr, ptr_str), dml=True)
     
 def print_nline_ptrs(start_addr, line_num):
-    start_addr = ctypes.c_long(start_addr).value
+    start_addr = ulong_to_long(start_addr)
     for addr in xrange(start_addr, start_addr + line_num * context.PTRSIZE, context.PTRSIZE):
-        addr = ctypes.c_ulong(addr).value
+        addr = long_to_ulong(addr)
         if not pykd.isValid(addr):
             raise CmdExecError("Invalid memory address: {:#x}".format(addr))
         else:
