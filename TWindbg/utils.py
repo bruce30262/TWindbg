@@ -1,5 +1,6 @@
 import pykd
 import color
+import context
 
 def to_int(val):
     """
@@ -15,7 +16,7 @@ def to_addr(val):
     try:
         addr = to_int(get_expr(val))
         if pykd.isValid(addr):
-            return addr
+            return addr & context.PTRMASK
     except:
         pass
         
