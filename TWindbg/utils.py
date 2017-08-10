@@ -32,3 +32,27 @@ def print_err(msg):
 
 def print_usage(doc_str):
     pykd.dprintln(color.blue(doc_str), dml=True)
+
+def check_in_range(val, low, up):
+    """ check if low <= val <= up """
+    int_val = to_int(val)
+    if not int_val:
+        return False
+    elif low <= int_val and int_val <= up:
+        return True
+    else:
+        return False
+
+def check_valid_addr(val):
+    addr, real_val = to_addr(val), get_expr(val)
+    if not addr:
+        errmsg = "Invalid address: "
+        if real_val != None:
+            errmsg += "{:#x}".format(real_val)
+        else:
+            errmsg += "{}".format(val)
+        return False, errmsg
+    else:
+        return True, None
+
+        

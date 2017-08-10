@@ -40,7 +40,7 @@ def print_nline_ptrs(start_addr, line_num):
             raise CmdExecError("Invalid memory address: {:#x}".format(addr))
         else:
             print_ptrs(addr)  
-    
+            
 class CmdExecError(Exception):
     def __init__(self, errmsg):
         self.errmsg = errmsg
@@ -58,27 +58,20 @@ class Command():
         Usage: telescope/tel [addr] [line to display, default=8, maximum=100] 
         """
         try:
-            line_num = 8
-            start_addr, real_val = None, None
             if len(args) == 0 or len(args) > 2:
                 raise CmdExecError("Invalid argument number")
             
-            for index, arg in enumerate(args):
-                if index == 0: # address
-                    start_addr, real_val = to_addr(arg), get_expr(arg)
-                else: # line num
-                    line_num = to_int(arg)
-            
-            if not line_num or line_num > 100 or line_num < 1:
-                    raise CmdExecError("Invalid line number: {}, should be 1 ~ 100".format(args[1]))
-                
-            if not start_addr:
-                errmsg = "Invalid address: "
-                if real_val != None:
-                    errmsg += "{:#x}".format(real_val)
-                else:
-                    errmsg += "{}".format(args[0])
+            start_addr, line_num = None, None
+            # check valid address
+            is_addr, errmsg = check_valid_addr(args[0])
+            if not is_addr:
                 raise CmdExecError(errmsg)
+            else:
+                start_addr = to_addr(args[0])
+            # check valid line number
+            line_num = 8 if len(args) == 1 else to_int(args[1])
+            if not check_in_range(line_num, 1, 100):
+                raise CmdExecError("Invalid line number: {}, should be 1 ~ 100".format(args[1]))
             
             print_nline_ptrs(start_addr, line_num)
             
@@ -98,7 +91,6 @@ class CommandHandler():
         except Exception:
             traceback.print_exc()
                 
-
 init_command_obj()
 if __name__ == "__main__":            
     if len(sys.argv) >= 2: # user input TWindbg command
