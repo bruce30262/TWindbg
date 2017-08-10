@@ -50,7 +50,7 @@ def check_valid_addr(val):
     if not addr:
         errmsg = "Invalid address: "
         if real_val != None:
-            errmsg += "{:#x}".format(real_val)
+            errmsg += "{:#x}".format(real_val & context.PTRMASK)
         else:
             errmsg += "{}".format(val)
         return False, errmsg
@@ -60,3 +60,4 @@ def check_valid_addr(val):
 def arg_num_in_range(args, low, up):
     """ check if low <= len(args) <= up """
     return check_in_range(len(args), low, up)
+

@@ -171,20 +171,27 @@ class ContextHandler(pykd.eventHandler):
                 pykd.dprintln(code_str)
     
     def print_stack(self):
-        sp = self.context.sp
-        for i in xrange(8):
-            cur_sp = sp + i * PTRSIZE
+        self.print_nline_ptrs(self.context.sp, 8)
+        
+    def print_nline_ptrs(self, start_addr, line_num):
+        for i in xrange(line_num):
             pykd.dprint("{:02d}:{:04x}| ".format(i, i * PTRSIZE))
-            ptr_values, is_cylic = self.smart_dereference(cur_sp)
-            stack_str = '{:#x}'.format(cur_sp)
-            for val in ptr_values:
-                stack_str += " --> {:#x}".format(val)
+            addr = start_addr + i * PTRSIZE
+            if not pykd.isValid(addr):
+                print_err("Invalid memory address: {:#x}".format(addr))
+                break
+            else:
+                self.print_ptrs(addr)  
 
-            if is_cylic:   
-                stack_str += color.dark_red(" ( cylic dereference )")
-            
-            pykd.dprintln(stack_str, dml=True)
-            
+    def print_ptrs(self, addr):
+        ptr_str = ""
+        ptr_values, is_cylic = self.smart_dereference(addr)
+        for val in ptr_values:
+            ptr_str += " --> {:#x}".format(val)
+        if is_cylic:   
+            ptr_str += color.dark_red(" ( cylic dereference )")
+        pykd.dprintln("{:#x}:{}".format(addr, ptr_str), dml=True)
+
     def smart_dereference(self, addr):
         ptr_values, is_cyclic = [], False
         for _ in xrange(MAX_DEREF):
