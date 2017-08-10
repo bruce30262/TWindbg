@@ -56,4 +56,6 @@ def check_valid_addr(val):
     else:
         return True, None
 
-        
+def arg_num_in_range(args, low, up):
+    """ check if low <= len(args) <= up """
+    return check_in_range(len(args), low, up)

@@ -55,7 +55,7 @@ class Command():
         Usage: telescope/tel [addr] [line to display, default=8, maximum=100] 
         """
         # check argument number
-        if len(args) == 0 or len(args) > 2:
+        if not arg_num_in_range(args, 1, 2):
             raise CmdExecError("Invalid argument number")
         # get start address and line number
         start_addr = to_addr(args[0])
