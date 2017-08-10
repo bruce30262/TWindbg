@@ -16,6 +16,8 @@ It will display the following context in each step/trace:
 - Disassembled code near PC
 - Contents of the stack pointer ( with basic smart dereference )  
 
+It also supports some peda-like commands ( see the [support commands](#support-commands) section )
+
 For now it supports both x86 & x64 WinDbg.
 
 # Dependencies
@@ -44,7 +46,10 @@ Or you can write a [simple batch file](/batch/TWindbg_x64.bat) for the sake of c
 
 After that you can just use `t` or `p` to see if the extension is working.
 
-
+# Support Commands
+* `ctx`: Print out the current context
+* `tel / telescope`: Display memory content at an address with smart dereferences
+![tel img](/img/tel.PNG?raw=true)
 
 # Note
-Maybe ( just maybe ) I'll add some command to make WinDbg behave more like PEDA ( or other debugger like pwndbg, GEF... ) in the future.
+Maybe ( just maybe ) I'll add more command to make WinDbg behave more like PEDA ( or other debugger like pwndbg, GEF... ) in the future.
