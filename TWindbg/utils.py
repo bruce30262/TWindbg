@@ -1,20 +1,7 @@
 import pykd
 import color
 import context
-import struct
 
-def ulong_to_long(i):
-    if context.ARCH == 'x86':
-        return struct.unpack_from("i", struct.pack("I", i))[0]
-    else:
-        return i
-
-def long_to_ulong(i):
-    if context.ARCH == 'x86':
-        return struct.unpack_from("I", struct.pack("i", i))[0]
-    else:
-        return i
-    
 def to_int(val):
     """
     Convert a string to int number
@@ -73,3 +60,4 @@ def check_valid_addr(val):
 def arg_num_in_range(args, low, up):
     """ check if low <= len(args) <= up """
     return check_in_range(len(args), low, up)
+

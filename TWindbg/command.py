@@ -24,24 +24,6 @@ def init_command_obj():
     global command_obj
     if 'command_obj' not in globals():
         command_obj = Command()
-        
-def print_ptrs(addr):
-    ptr_str = ""
-    ptr_values, is_cylic = context.context_handler.smart_dereference(addr)
-    for val in ptr_values:
-        ptr_str += " --> {:#x}".format(val)
-    if is_cylic:   
-        ptr_str += color.dark_red(" ( cylic dereference )")
-    pykd.dprintln("{:#x}:{}".format(addr, ptr_str), dml=True)
-    
-def print_nline_ptrs(start_addr, line_num):
-    start_addr = ulong_to_long(start_addr)
-    for addr in xrange(start_addr, start_addr + line_num * context.PTRSIZE, context.PTRSIZE):
-        addr = long_to_ulong(addr)
-        if not pykd.isValid(addr):
-            raise CmdExecError("Invalid memory address: {:#x}".format(addr))
-        else:
-            print_ptrs(addr)  
            
 class CmdExecError(Exception):
     def __init__(self, errmsg):
@@ -70,7 +52,7 @@ class Command():
         if not check_in_range(line_num, 1, 100):
             raise CmdExecError("Invalid line number: {}, should be 1 ~ 100".format(args[1]))
         
-        print_nline_ptrs(start_addr, line_num)
+        context.context_handler.print_nline_ptrs(start_addr, line_num)
 
 class CommandHandler():
     def __init__(self, func):
