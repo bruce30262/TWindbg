@@ -33,7 +33,14 @@ def print_ptrs(addr):
     if is_cylic:   
         ptr_str += color.dark_red(" ( cylic dereference )")
     pykd.dprintln("{:#x}:{}".format(addr, ptr_str), dml=True)
-
+    
+def print_nline_ptrs(start_addr, line_num):
+    for addr in xrange(start_addr, start_addr + line_num * context.PTRSIZE, context.PTRSIZE):
+        if not pykd.isValid(addr):
+            raise CmdExecError("Invalid memory address: {:#x}".format(addr))
+        else:
+            print_ptrs(addr)  
+    
 class CmdExecError(Exception):
     def __init__(self, errmsg):
         self.errmsg = errmsg
@@ -52,14 +59,19 @@ class Command():
         """
         try:
             line_num = 8
+            start_addr, real_val = None, None
             if len(args) == 0 or len(args) > 2:
                 raise CmdExecError("Invalid argument number")
-            elif len(args) == 2: # 
-                line_num = to_int(args[1])
-                if not line_num or line_num > 100 or line_num < 1:
+            
+            for index, arg in enumerate(args):
+                if index == 0: # address
+                    start_addr, real_val = to_addr(arg), get_expr(arg)
+                else: # line num
+                    line_num = to_int(arg)
+            
+            if not line_num or line_num > 100 or line_num < 1:
                     raise CmdExecError("Invalid line number: {}, should be 1 ~ 100".format(args[1]))
                 
-            start_addr, real_val = to_addr(args[0]), get_expr(args[0])
             if not start_addr:
                 errmsg = "Invalid address: "
                 if real_val != None:
@@ -67,12 +79,9 @@ class Command():
                 else:
                     errmsg += "{}".format(args[0])
                 raise CmdExecError(errmsg)
-                
-            for addr in xrange(start_addr, start_addr + line_num * context.PTRSIZE, context.PTRSIZE):
-                if not pykd.isValid(addr):
-                    raise CmdExecError("Invalid memory address: {:#x}".format(addr))
-                else:
-                    print_ptrs(addr)
+            
+            print_nline_ptrs(start_addr, line_num)
+            
         except Exception:
             raise
           
