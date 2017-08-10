@@ -11,6 +11,22 @@ def to_int(val):
     except:
         return None
 
+def to_addr(val):
+    try:
+        addr = to_int(get_expr(val))
+        if pykd.isValid(addr):
+            return addr
+    except:
+        pass
+        
+    return None
+
+def get_expr(val):
+    try:
+        return pykd.expr(val)
+    except:
+        return None
+    
 def print_err(msg):
     pykd.dprintln(color.red(msg), dml=True)
 

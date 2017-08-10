@@ -11,7 +11,7 @@ PTRSIZE = None
 MAX_DEREF = 20
 
 def init_arch():
-    global ARCH, PTRMASK
+    global ARCH, PTRMASK, PTRSIZE
     cpu_mode = pykd.getCPUMode() 
     if cpu_mode == pykd.CPUType.I386:
         ARCH = 'x86'
