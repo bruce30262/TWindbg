@@ -47,6 +47,7 @@ Or you can write a [simple batch file](/batch/TWindbg_x64.bat) for the sake of c
 After that you can just use `t` or `p` to see if the extension is working.
 
 # Support Commands
+* `TWindbg`: List all the command in TWindbg
 * `ctx`: Print out the current context
 * `tel / telescope`: Display memory content at an address with smart dereferences
 ![tel img](/img/tel.PNG?raw=true)
