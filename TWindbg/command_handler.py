@@ -5,11 +5,6 @@ import command
 
 from utils import *
 
-all_commands = [
-    'telescope',
-    'ctx'
-]
-
 def set_alias(a, v):
     pykd.dbgCommand("as {} {}".format(a, v))
 
@@ -17,8 +12,7 @@ def wrap_command(cmd, real_cmd):
     set_alias(cmd, "!py -g winext\TWindbg\command_handler.py {}".format(real_cmd))
 
 def wrap_all_commands():
-    global all_commands
-    for cmd in all_commands:
+    for cmd in command.all_commands:
         wrap_command(cmd, cmd)
     wrap_command("tel", "telescope")
 
@@ -38,7 +32,7 @@ class CommandHandler():
 if __name__ == "__main__":            
     if len(sys.argv) >= 2: # user input TWindbg command
         cmd = sys.argv[1]
-        if hasattr(command, cmd): # if the command mudule has the corresponded method, call it
+        if cmd in command.all_commands and hasattr(command, cmd): # if the command mudule has the corresponded method, call it
             func = getattr(command, cmd)
             CommandHandler(func).invoke(sys.argv[2::])
         else:

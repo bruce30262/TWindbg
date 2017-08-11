@@ -37,7 +37,7 @@ def print_usage(doc_str):
 def check_in_range(val, low, up):
     """ check if low <= val <= up """
     int_val = to_int(val)
-    if not int_val:
+    if int_val == None:
         return False
     elif low <= int_val and int_val <= up:
         return True
