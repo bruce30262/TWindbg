@@ -1,6 +1,7 @@
 import pykd
 import color
 import context
+import string
 
 def to_int(val):
     """
@@ -13,6 +14,7 @@ def to_int(val):
         return None
 
 def to_addr(val):
+    """ Convert a value to a memory address """
     try:
         addr = to_int(get_expr(val))
         if pykd.isValid(addr):
@@ -23,6 +25,7 @@ def to_addr(val):
     return None
 
 def get_expr(val):
+    """ Convert a windbg expression to real value """
     try:
         return pykd.expr(val)
     except:
@@ -61,3 +64,29 @@ def arg_num_in_range(args, low, up):
     """ check if low <= len(args) <= up """
     return check_in_range(len(args), low, up)
 
+def disasm(addr):
+    """ disassemble, return opcodes and  assembly string """
+    resp = pykd.disasm().disasm(addr).split(" ")
+    op_str = resp[1]
+    asm_str = ' '.join(c for c in resp[2::]).strip()
+    return op_str, asm_str
+
+def is_executable(addr):
+    if "Execute" in str(pykd.getVaProtect(addr)):
+        return True
+    else:
+        return False
+
+def get_string(ptr):
+    """ try to get string from a pointer """
+    max_length = 30
+    try:
+        s = pykd.loadCStr(ptr)
+        if not all(c in string.printable for c in s):
+            return None
+        if len(s) > max_length:
+            return s[:max_length:] + "..."
+        else:
+            return s
+    except:
+        return None
