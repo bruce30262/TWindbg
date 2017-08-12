@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import pykd
 import color
 import sys
@@ -117,14 +119,18 @@ class ContextHandler(pykd.eventHandler):
     def print_general_regs(self):
         for reg_name in self.context.regs_name:
             reg_data = self.context.regs[reg_name]
-            reg_str = '{:3}: {:#x}'.format(reg_name.upper(), reg_data)
+            reg_str = '{:3}: '.format(reg_name.upper())
             reg_color = None
             if self.context.is_changed[reg_name]:
                 reg_color = color.red 
             else:
                 reg_color = color.lime
             
-            pykd.dprintln(reg_color(reg_str), dml=True)
+            pykd.dprint(reg_color(reg_str), dml=True)
+            if pykd.isValid(reg_data): # reg_data is a pointer
+                self.print_ptrs(reg_data)
+            else:
+                pykd.dprintln("{:#x}".format(reg_data))
 
     def print_seg_regs(self):
         first_print = True
@@ -161,10 +167,8 @@ class ContextHandler(pykd.eventHandler):
         pc = self.context.pc
         for offset in xrange(-3, 6): # pc-3 ~ pc+5
             addr = pykd.disasm().findOffset(offset)
-            inst = pykd.disasm().disasm(addr)
-            start = len(inst.split(" ")[0])
-            inst = inst[start::] # strip the address info
-            code_str = "{:#x}: {}".format(addr, inst)
+            op_str, asm_str = disasm(addr)
+            code_str = "{:#x}: {:20s}{}".format(addr, op_str, asm_str)
             if addr == pc: # current pc, highlight
                 pykd.dprintln(color.lime_highlight(code_str), dml=True)
             else:
@@ -184,21 +188,42 @@ class ContextHandler(pykd.eventHandler):
                 self.print_ptrs(addr)  
 
     def print_ptrs(self, addr):
-        ptr_str = ""
-        ptr_values, is_cylic = self.smart_dereference(addr)
-        for val in ptr_values:
-            ptr_str += " --> {:#x}".format(val)
-        if is_cylic:   
-            ptr_str += color.dark_red(" ( cylic dereference )")
-        pykd.dprintln("{:#x}:{}".format(addr, ptr_str), dml=True)
+        ptrs_str = ""
+        ptr_values, is_cyclic = self.smart_dereference(addr)
+        for index, val in enumerate(ptr_values):
+            if index == (len(ptr_values) - 2): # last ptr
+                last_val = ptr_values[index+1]
+                if is_cyclic:
+                    ptrs_str += "{:#x} --> {:#x}".format(val, last_val)
+                    ptrs_str += color.dark_red(" ( cylic dereference )")
+                else:
+                    ptrs_str += self.enhance_type(val, last_val)
+                break
+            else:
+                ptrs_str += "{:#x} --> ".format(val)
+        pykd.dprintln(ptrs_str, dml=True)
+
+    def enhance_type(self, ptr, val):
+        ret_str = ""
+        if is_executable(ptr): # code page
+            symbol = pykd.findSymbol(ptr) + ":"
+            asm_str = disasm(ptr)[1]
+            ret_str = "{:#x}".format(ptr)
+            ret_str += color.gray(" ({:45s}{})".format(symbol, asm_str))
+        else:
+            ret_str = "{:#x} --> {:#x}".format(ptr, val)
+            val_str = get_string(ptr)
+            if val_str != None: # val is probably a string
+                ret_str += color.white(" (\"{}\")".format(val_str))
+        return ret_str
 
     def smart_dereference(self, addr):
-        ptr_values, is_cyclic = [], False
+        ptr_values, is_cyclic = [addr], False
         for _ in xrange(MAX_DEREF):
             try:
                 val = pykd.loadPtrs(addr, 1)[0] & PTRMASK
                 ptr_values.append(val)
-                if val in ptr_values[:-1:] or val == addr: # cyclic dereference
+                if val in ptr_values[:-1:]: # cyclic dereference
                     is_cyclic = True
                     break
                 else:
@@ -207,4 +232,4 @@ class ContextHandler(pykd.eventHandler):
                 break
 
         return ptr_values, is_cyclic
-
+    
