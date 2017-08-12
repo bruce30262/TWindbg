@@ -213,7 +213,7 @@ class ContextHandler(pykd.eventHandler):
         else:
             ret_str = "{:#x} --> {:#x}".format(ptr, val)
             val_str = get_string(ptr)
-            if val_str != None: # val is probably a string
+            if val_str: # val is probably a string
                 ret_str += color.white(" (\"{}\")".format(val_str))
         return ret_str
 

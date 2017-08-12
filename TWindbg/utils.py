@@ -82,7 +82,7 @@ def get_string(ptr):
     max_length = 30
     try:
         s = pykd.loadCStr(ptr)
-        if not s or not all(c in string.printable for c in s):
+        if not all(c in string.printable for c in s):
             return None
         if len(s) > max_length:
             return s[:max_length:] + "..."
