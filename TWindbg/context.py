@@ -101,8 +101,7 @@ class ContextHandler(pykd.eventHandler):
 
     def print_context(self):
         #pykd.dbgCommand('.cls')
-        if self.context.pc == None: # if no context, update it
-            self.context.update_regs()
+        self.context.update_regs()
         pykd.dprintln(color.yellow("[------ Register --------------------------------------------------------------------------------------------]"), dml=True)
         self.print_regs()
         pykd.dprintln(color.yellow("[------ Code ------------------------------------------------------------------------------------------------]"), dml=True)
