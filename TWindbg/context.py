@@ -195,7 +195,7 @@ class ContextHandler(pykd.eventHandler):
                 last_val = ptr_values[index+1]
                 if is_cyclic:
                     ptrs_str += "{:#x} --> {:#x}".format(val, last_val)
-                    ptrs_str += color.dark_red(" ( cylic dereference )")
+                    ptrs_str += color.dark_red(" ( cyclic dereference )")
                 else:
                     ptrs_str += self.enhance_type(val, last_val)
                 break
