@@ -116,7 +116,7 @@ class ContextHandler(pykd.eventHandler):
         for reg_name in self.context.regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:3}: '.format(reg_name.upper())
-            reg_color = self.set_reg_color(reg_name, color.red, color.lime)
+            reg_color = self.set_reg_color(reg_name, color_changed=color.red, color_unchanged=color.lime)
             pykd.dprint(reg_color(reg_str), dml=True)
 
             if pykd.isValid(reg_data): # reg_data is a pointer
@@ -129,7 +129,7 @@ class ContextHandler(pykd.eventHandler):
         for reg_name in self.context.seg_regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:2}={:#x}'.format(reg_name.upper(), reg_data)
-            reg_color = self.set_reg_color(reg_name, color.red, color.green)
+            reg_color = self.set_reg_color(reg_name, color_changed=color.red, color_unchanged=color.green)
 
             if first_print:
                 pykd.dprint(reg_color(reg_str), dml=True)
