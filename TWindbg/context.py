@@ -98,7 +98,6 @@ class ContextHandler(pykd.eventHandler):
             self.print_context()
 
     def print_context(self):
-        #pykd.dbgCommand('.cls')
         self.context.update_regs()
         pykd.dprintln(color.yellow("[------ Register --------------------------------------------------------------------------------------------]"), dml=True)
         self.print_regs()
@@ -117,13 +116,9 @@ class ContextHandler(pykd.eventHandler):
         for reg_name in self.context.regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:3}: '.format(reg_name.upper())
-            reg_color = None
-            if self.context.is_changed[reg_name]:
-                reg_color = color.red 
-            else:
-                reg_color = color.lime
-            
+            reg_color = self.set_reg_color(reg_name, color.red, color.lime)
             pykd.dprint(reg_color(reg_str), dml=True)
+
             if pykd.isValid(reg_data): # reg_data is a pointer
                 self.print_ptrs(reg_data)
             else:
@@ -134,11 +129,8 @@ class ContextHandler(pykd.eventHandler):
         for reg_name in self.context.seg_regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:2}={:#x}'.format(reg_name.upper(), reg_data)
-            reg_color = None
-            if self.context.is_changed[reg_name]:
-                reg_color = color.red 
-            else:
-                reg_color = color.green
+            reg_color = self.set_reg_color(reg_name, color.red, color.green)
+
             if first_print:
                 pykd.dprint(reg_color(reg_str), dml=True)
                 first_print = False
@@ -159,6 +151,12 @@ class ContextHandler(pykd.eventHandler):
                 eflags_str += color.green(flag_name)
         eflags_str += " ]"
         pykd.dprintln(eflags_str, dml=True)
+
+    def set_reg_color(self, reg_name, color_changed, color_unchanged):
+        if self.context.is_changed[reg_name]:
+            return color_changed
+        else:
+            return color_unchanged
 
     def print_code(self):
         pc = self.context.pc
