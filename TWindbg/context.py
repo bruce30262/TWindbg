@@ -185,17 +185,15 @@ class ContextHandler(pykd.eventHandler):
     def print_ptrs(self, addr):
         ptrs_str = ""
         ptr_values, is_cyclic = self.smart_dereference(addr)
-        for index, val in enumerate(ptr_values):
-            if index == (len(ptr_values) - 2): # last ptr
-                last_val = ptr_values[index+1]
-                if is_cyclic:
-                    ptrs_str += "{:#x} --> {:#x}".format(val, last_val)
-                    ptrs_str += color.dark_red(" ( cyclic dereference )")
-                else:
-                    ptrs_str += self.enhance_type(val, last_val)
-                break
-            else:
-                ptrs_str += "{:#x} --> ".format(val)
+        # print all ptrs except last two
+        for ptr in ptr_values[:-2:]:
+            ptrs_str += "{:#x} --> ".format(ptr)
+        # handle last two's format
+        last_ptr, last_val = ptr_values[-2], ptr_values[-1]
+        if is_cyclic:
+            ptrs_str += "{:#x} --> {:#x}".format(last_ptr, last_val) + color.dark_red(" ( cyclic dereference )")
+        else:
+            ptrs_str += self.enhance_type(last_ptr, last_val)
         pykd.dprintln(ptrs_str, dml=True)
 
     def enhance_type(self, ptr, val):
