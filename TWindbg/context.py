@@ -210,19 +210,19 @@ class ContextHandler(pykd.eventHandler):
                 ret_str += color.white(" (\"{}\")".format(val_str))
         return ret_str
 
-    def smart_dereference(self, addr):
-        ptr_values, is_cyclic = [addr], False
+    def smart_dereference(self, ptr):
+        ptr_values, is_cyclic = [ptr], False
         for _ in xrange(MAX_DEREF):
-            try:
-                val = pykd.loadPtrs(addr, 1)[0] & PTRMASK
-                ptr_values.append(val)
-                if val in ptr_values[:-1:]: # cyclic dereference
-                    is_cyclic = True
-                    break
-                else:
-                    addr = val
-            except pykd.MemoryException: # no more dereference
+            val = deref_ptr(ptr)
+            if val == None: # no more dereference
                 break
+            elif val in ptr_values[:-1:]: # cyclic dereference
+                ptr_values.append(val)
+                is_cyclic = True
+                break
+            else:
+                ptr_values.append(val)
+                ptr = val
 
         return ptr_values, is_cyclic
     

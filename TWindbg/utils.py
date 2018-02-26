@@ -90,3 +90,9 @@ def get_string(ptr):
             return s
     except:
         return None
+
+def deref_ptr(ptr):
+    try:
+	return pykd.loadPtrs(ptr, 1)[0] & context.PTRMASK
+    except pykd.MemoryException:
+	return None
