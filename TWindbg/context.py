@@ -84,11 +84,10 @@ class Context():
                 self.is_changed[reg_name] = False
             
             self.regs[reg_name] = reg_data
-            if reg_name == self.sp_name:
-                self.sp = reg_data
-            if reg_name == self.pc_name:
-                self.pc = reg_data
-    
+        # update sp & pc
+        self.sp = self.regs[self.sp_name]
+        self.pc = self.regs[self.pc_name]
+
 class ContextHandler(pykd.eventHandler):
     def __init__(self, context):
         pykd.eventHandler.__init__(self)
@@ -96,11 +95,9 @@ class ContextHandler(pykd.eventHandler):
         
     def onExecutionStatusChange(self, status):
         if status == pykd.executionStatus.Break: # step, trace, ...
-            self.context.update_regs()
             self.print_context()
 
     def print_context(self):
-        #pykd.dbgCommand('.cls')
         self.context.update_regs()
         pykd.dprintln(color.yellow("[------ Register --------------------------------------------------------------------------------------------]"), dml=True)
         self.print_regs()
@@ -119,13 +116,9 @@ class ContextHandler(pykd.eventHandler):
         for reg_name in self.context.regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:3}: '.format(reg_name.upper())
-            reg_color = None
-            if self.context.is_changed[reg_name]:
-                reg_color = color.red 
-            else:
-                reg_color = color.lime
-            
+            reg_color = self.set_reg_color(reg_name, color_changed=color.red, color_unchanged=color.lime)
             pykd.dprint(reg_color(reg_str), dml=True)
+
             if pykd.isValid(reg_data): # reg_data is a pointer
                 self.print_ptrs(reg_data)
             else:
@@ -136,11 +129,8 @@ class ContextHandler(pykd.eventHandler):
         for reg_name in self.context.seg_regs_name:
             reg_data = self.context.regs[reg_name]
             reg_str = '{:2}={:#x}'.format(reg_name.upper(), reg_data)
-            reg_color = None
-            if self.context.is_changed[reg_name]:
-                reg_color = color.red 
-            else:
-                reg_color = color.green
+            reg_color = self.set_reg_color(reg_name, color_changed=color.red, color_unchanged=color.green)
+
             if first_print:
                 pykd.dprint(reg_color(reg_str), dml=True)
                 first_print = False
@@ -161,6 +151,12 @@ class ContextHandler(pykd.eventHandler):
                 eflags_str += color.green(flag_name)
         eflags_str += " ]"
         pykd.dprintln(eflags_str, dml=True)
+
+    def set_reg_color(self, reg_name, color_changed, color_unchanged):
+        if self.context.is_changed[reg_name]:
+            return color_changed
+        else:
+            return color_unchanged
 
     def print_code(self):
         pc = self.context.pc
@@ -189,17 +185,15 @@ class ContextHandler(pykd.eventHandler):
     def print_ptrs(self, addr):
         ptrs_str = ""
         ptr_values, is_cyclic = self.smart_dereference(addr)
-        for index, val in enumerate(ptr_values):
-            if index == (len(ptr_values) - 2): # last ptr
-                last_val = ptr_values[index+1]
-                if is_cyclic:
-                    ptrs_str += "{:#x} --> {:#x}".format(val, last_val)
-                    ptrs_str += color.dark_red(" ( cyclic dereference )")
-                else:
-                    ptrs_str += self.enhance_type(val, last_val)
-                break
-            else:
-                ptrs_str += "{:#x} --> ".format(val)
+        # print all ptrs except last two
+        for ptr in ptr_values[:-2:]:
+            ptrs_str += "{:#x} --> ".format(ptr)
+        # handle last two's format
+        last_ptr, last_val = ptr_values[-2], ptr_values[-1]
+        if is_cyclic:
+            ptrs_str += "{:#x} --> {:#x}".format(last_ptr, last_val) + color.dark_red(" ( cyclic dereference )")
+        else:
+            ptrs_str += self.enhance_type(last_ptr, last_val)
         pykd.dprintln(ptrs_str, dml=True)
 
     def enhance_type(self, ptr, val):
@@ -216,19 +210,19 @@ class ContextHandler(pykd.eventHandler):
                 ret_str += color.white(" (\"{}\")".format(val_str))
         return ret_str
 
-    def smart_dereference(self, addr):
-        ptr_values, is_cyclic = [addr], False
+    def smart_dereference(self, ptr):
+        ptr_values, is_cyclic = [ptr], False
         for _ in xrange(MAX_DEREF):
-            try:
-                val = pykd.loadPtrs(addr, 1)[0] & PTRMASK
-                ptr_values.append(val)
-                if val in ptr_values[:-1:]: # cyclic dereference
-                    is_cyclic = True
-                    break
-                else:
-                    addr = val
-            except pykd.MemoryException: # no more dereference
+            val = deref_ptr(ptr)
+            if val == None: # no more dereference
                 break
+            elif val in ptr_values[:-1:]: # cyclic dereference
+                ptr_values.append(val)
+                is_cyclic = True
+                break
+            else:
+                ptr_values.append(val)
+                ptr = val
 
         return ptr_values, is_cyclic
     
