@@ -84,11 +84,10 @@ class Context():
                 self.is_changed[reg_name] = False
             
             self.regs[reg_name] = reg_data
-            if reg_name == self.sp_name:
-                self.sp = reg_data
-            if reg_name == self.pc_name:
-                self.pc = reg_data
-    
+        # update sp & pc
+        self.sp = self.regs[self.sp_name]
+        self.pc = self.regs[self.pc_name]
+
 class ContextHandler(pykd.eventHandler):
     def __init__(self, context):
         pykd.eventHandler.__init__(self)
@@ -96,7 +95,6 @@ class ContextHandler(pykd.eventHandler):
         
     def onExecutionStatusChange(self, status):
         if status == pykd.executionStatus.Break: # step, trace, ...
-            self.context.update_regs()
             self.print_context()
 
     def print_context(self):
