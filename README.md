@@ -10,7 +10,7 @@ PEDA-like debugger UI for WinDbg
 ![context img](/img/context.PNG?raw=true)
 
 # Introduction
-This is a windbg extension ( using [pykd](https://pykd.codeplex.com/) ) to let user having a [PEDA-like](https://github.com/longld/peda) debugger UI in WinDbg.  
+This is a windbg extension ( using [pykd](https://githomelab.ru/pykd/pykd) ) to let user having a [PEDA-like](https://github.com/longld/peda) debugger UI in WinDbg.  
 It will display the following context in each step/trace:  
 - Registers
 - Disassembled code near PC
@@ -22,7 +22,7 @@ For now it supports both x86 & x64 WinDbg.
 
 # Dependencies
 * Python2.7 ( The extension has NOT been tested on Python3 )
-* [pykd](https://pykd.codeplex.com/)
+* [pykd](https://githomelab.ru/pykd/pykd)
 
 # Installation
 * Install Python2.7 & pykd
