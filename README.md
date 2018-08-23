@@ -35,12 +35,12 @@ For now it supports both x86 & x64 WinDbg.
 # Usage
 ## Launch TWindbg manually
 * Open an executable or attach to a process with WinDbg
-* Use `.load pykd.pyd` to load the `pykd` extension
+* Use `.load pykd` to load the `pykd` extension
 * Use `!py -g winext\TWindbg\TWindbg.py` to launch TWindbg
 
 ## Launch TWindbg with command
 ```
-[PATH_TO_WINDBG] -a pykd.pyd -c "!py -g winext\TWindbg\TWindbg.py"
+[PATH_TO_WINDBG] -a pykd -c "!py -g winext\TWindbg\TWindbg.py"
 ```
 Or you can write a [simple batch file](/batch/TWindbg_x64.bat) for the sake of convenience.
 
