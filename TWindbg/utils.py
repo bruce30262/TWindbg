@@ -72,6 +72,7 @@ def disasm(addr):
     return op_str, asm_str
 
 def is_executable(addr):
+    if pykd.isKernelDebugging(): return False # we need to find a way to get the memory protection information in kernel debug mode
     if "Execute" in str(pykd.getVaProtect(addr)):
         return True
     else:
