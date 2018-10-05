@@ -77,11 +77,11 @@ def is_executable(addr):
     else:
         return False
 
-def get_string(ptr):
-    """ try to get string from a pointer """
+def load_str(load_str_func, ptr):
+    """ Load string with pykd function """
     max_length = 30
     try:
-        s = pykd.loadCStr(ptr)
+        s = load_str_func(ptr)
         if not all(c in string.printable for c in s):
             return None
         if len(s) > max_length:
@@ -90,6 +90,14 @@ def get_string(ptr):
             return s
     except:
         return None
+
+def get_string(ptr):
+    """ try to get string from a pointer """
+
+    ret = load_str(pykd.loadWStr, ptr) # try load WString (unicode) first
+    if not ret: ret = load_str(pykd.loadCStr, ptr) # if failed, load CStr ( ascii )
+
+    return ret
 
 def deref_ptr(ptr):
     try:
