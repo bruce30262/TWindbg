@@ -160,7 +160,7 @@ class ContextHandler(pykd.eventHandler):
 
     def print_code(self):
         pc = self.context.pc
-        for offset in xrange(-3, 6): # pc-3 ~ pc+5
+        for offset in range(-3, 6): # pc-3 ~ pc+5
             addr = pykd.disasm().findOffset(offset)
             op_str, asm_str = disasm(addr)
             code_str = "{:#x}: {:20s}{}".format(addr, op_str, asm_str)
@@ -173,7 +173,7 @@ class ContextHandler(pykd.eventHandler):
         self.print_nline_ptrs(self.context.sp, 8)
         
     def print_nline_ptrs(self, start_addr, line_num):
-        for i in xrange(line_num):
+        for i in range(line_num):
             pykd.dprint("{:02d}:{:04x}| ".format(i, i * PTRSIZE))
             addr = start_addr + i * PTRSIZE
             if not pykd.isValid(addr):
@@ -212,7 +212,7 @@ class ContextHandler(pykd.eventHandler):
 
     def smart_dereference(self, ptr):
         ptr_values, is_cyclic = [ptr], False
-        for _ in xrange(MAX_DEREF):
+        for _ in range(MAX_DEREF):
             val = deref_ptr(ptr)
             if val == None: # no more dereference
                 break
