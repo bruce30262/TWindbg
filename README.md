@@ -1,4 +1,4 @@
-[![Python 2.7](https://img.shields.io/badge/Python-2.7-green.svg)](https://github.com/bruce30262/TWindbg/)
+[![Python 2&3](https://img.shields.io/badge/Python-2%20%26%203-green.svg)](https://github.com/bruce30262/TWindbg/)
 [![Code Climate](https://codeclimate.com/github/bruce30262/TWindbg/badges/gpa.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
 [![Issue Count](https://codeclimate.com/github/bruce30262/TWindbg/badges/issue_count.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
@@ -21,11 +21,21 @@ It also supports some peda-like commands ( see the [support commands](#support-c
 For now it supports both x86 & x64 WinDbg.
 
 # Dependencies
-* Python2.7 ( The extension has NOT been tested on Python3 )
+* Python 2/3  
+> For now the extension is Python2/3 compatible.  
+> However since now [Python2 has reached the EOL](https://www.python.org/doc/sunset-python-2/), all the feature will be tested on Python3 from now on.  
+> I'll try my best to keep this extension as a Python2/3 compatible project, however there's still a possibility that I might drop the support of Python2 in the future.
 * [pykd](https://githomelab.ru/pykd/pykd)
 
 # Installation
-* Install Python2.7 & pykd
+* Install Python2/3  
+* Install pykd  
+    - Download [Pykd-Ext](https://githomelab.ru/pykd/pykd-ext/-/wikis/Downloads), unpack `pykd.dll` to the `[WinDbg Directory]\x86(or x64)\winext\` directory.  
+        + This will allow you to run python in Windbg.  
+    - In the Windbg command line, enter command `.load pykd` to load the pykd module.  
+    - Enter `!pip install pykd` to install the pykd python package.  
+        + Upgrade the pykd module with command `!pip install --upgrade pykd`.  
+        + If something went wrong during the installation with `pip install`, try installing the wheel package instead of the one on PyPI. You can download the wheel package [here](https://githomelab.ru/pykd/pykd/-/wikis/All%20Releases).
 * Download the repository
 * Install the matrix theme by double-clicking the [matrix_theme.reg](/matrix_theme.reg)
   - The matrix theme is required for letting the [color theme](/TWindbg/color.py) work in TWindbg
