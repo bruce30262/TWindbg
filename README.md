@@ -1,4 +1,4 @@
-[![Python 2&3](https://img.shields.io/badge/Python-2%20%26%203-green.svg)](https://github.com/bruce30262/TWindbg/)
+[![Python 3](https://img.shields.io/badge/Python-3-green.svg)](https://github.com/bruce30262/TWindbg/)
 [![Code Climate](https://codeclimate.com/github/bruce30262/TWindbg/badges/gpa.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
 [![Issue Count](https://codeclimate.com/github/bruce30262/TWindbg/badges/issue_count.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](http://choosealicense.com/licenses/mit/)
@@ -21,14 +21,14 @@ It also supports some peda-like commands ( see the [support commands](#support-c
 For now it supports both x86 & x64 WinDbg.
 
 # Dependencies
-* Python 2/3  
-> For now the extension is Python2/3 compatible.  
-> However since now [Python2 has reached the EOL](https://www.python.org/doc/sunset-python-2/), all the feature will be tested on Python3 from now on.  
-> I'll try my best to keep this extension as a Python2/3 compatible project, however there's still a possibility that I might drop the support of Python2 in the future.
+* Python 3  
+
+> I decided to drop the support of Python2.7 since it has [reached the EOL](https://www.python.org/doc/sunset-python-2/). I believe the project is Python2/3 compatible, however there might exist some issues in pykd and can cause different behavior in Python2/3. Since now the project will only be tested on Python3, I strongly suggest using TWindbg on Python3 instead of Python 2.7. If you still want to use it on Python 2.7, feel free to fork the project and do the development.
+
 * [pykd](https://githomelab.ru/pykd/pykd)
 
 # Installation
-* Install Python2/3  
+* Install Python3  
 * Install pykd  
     - Download [Pykd-Ext](https://githomelab.ru/pykd/pykd-ext/-/wikis/Downloads), unpack `pykd.dll` to the `[WinDbg Directory]\x86(or x64)\winext\` directory.  
         + This will allow you to run python in Windbg.  
