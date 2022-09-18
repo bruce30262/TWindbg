@@ -189,11 +189,14 @@ class ContextHandler(pykd.eventHandler):
         for ptr in ptr_values[:-2:]:
             ptrs_str += "{:#x} --> ".format(ptr)
         # handle last two's format
-        last_ptr, last_val = ptr_values[-2], ptr_values[-1]
-        if is_cyclic:
-            ptrs_str += "{:#x} --> {:#x}".format(last_ptr, last_val) + color.dark_red(" ( cyclic dereference )")
+        if len(ptr_values) > 1:
+            last_ptr, last_val = ptr_values[-2], ptr_values[-1]
+            if is_cyclic:
+                ptrs_str += "{:#x} --> {:#x}".format(last_ptr, last_val) + color.dark_red(" ( cyclic dereference )")
+            else:
+                ptrs_str += self.enhance_type(last_ptr, last_val)
         else:
-            ptrs_str += self.enhance_type(last_ptr, last_val)
+            ptrs_str += "{:#x}".format(ptr_values[0])
         pykd.dprintln(ptrs_str, dml=True)
 
     def enhance_type(self, ptr, val):
