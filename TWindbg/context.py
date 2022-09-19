@@ -219,8 +219,9 @@ class ContextHandler(pykd.eventHandler):
             val = deref_ptr(ptr)
             if val == None: # no more dereference
                 break
-            elif val in ptr_values[:-1:]: # cyclic dereference
-                ptr_values.append(val)
+            elif val in ptr_values: # cyclic dereference
+                if val != ptr_values[-1]:
+                    ptr_values.append(val)
                 is_cyclic = True
                 break
             else:
