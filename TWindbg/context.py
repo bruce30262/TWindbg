@@ -119,7 +119,8 @@ class ContextHandler(pykd.eventHandler):
             reg_color = self.set_reg_color(reg_name, color_changed=color.red, color_unchanged=color.lime)
             pykd.dprint(reg_color(reg_str), dml=True)
 
-            if pykd.isValid(reg_data): # reg_data is a pointer
+            # if reg_data is a valid virtual address and is able to be dereferenced, print it with print_ptrs(), or else just print it directly
+            if pykd.isValid(reg_data) and ( deref_ptr(reg_data) != None ):
                 self.print_ptrs(reg_data)
             else:
                 pykd.dprintln("{:#x}".format(reg_data))
@@ -216,12 +217,15 @@ class ContextHandler(pykd.eventHandler):
             val = deref_ptr(ptr)
             if val == None: # no more dereference
                 break
-            elif val in ptr_values[:-1:]: # cyclic dereference
-                ptr_values.append(val)
+
+            ptr_values.append(val)
+            # Check if the newly pushed value is in ptr_values[:-1:]
+            # If it does means there's a cyclic dereference in the current pointer chain
+            # Otherwise the newly pushed value will become the new pointer to be dereferenced next
+            if val in ptr_values[:-1:]: 
                 is_cyclic = True
                 break
             else:
-                ptr_values.append(val)
                 ptr = val
 
         return ptr_values, is_cyclic
