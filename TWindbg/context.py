@@ -217,12 +217,15 @@ class ContextHandler(pykd.eventHandler):
             val = deref_ptr(ptr)
             if val == None: # no more dereference
                 break
-            elif val in ptr_values[:-1:]: # cyclic dereference
-                ptr_values.append(val)
+
+            ptr_values.append(val)
+            # Check if the newly pushed value is in ptr_values[:-1:]
+            # If it does means there's a cyclic dereference in the current pointer chain
+            # Otherwise the newly pushed value will become the new pointer to be dereferenced next
+            if val in ptr_values[:-1:]: 
                 is_cyclic = True
                 break
             else:
-                ptr_values.append(val)
                 ptr = val
 
         return ptr_values, is_cyclic
