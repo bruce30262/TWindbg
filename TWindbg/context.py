@@ -120,7 +120,7 @@ class ContextHandler(pykd.eventHandler):
             pykd.dprint(reg_color(reg_str), dml=True)
 
             # if reg_data is a valid virtual address and is able to be dereferenced, print it with print_ptrs(), or else just print it directly
-            if pykd.isValid(reg_data) and deref_ptr(reg_data):
+            if pykd.isValid(reg_data) and ( deref_ptr(reg_data) != None ):
                 self.print_ptrs(reg_data)
             else:
                 pykd.dprintln("{:#x}".format(reg_data))
