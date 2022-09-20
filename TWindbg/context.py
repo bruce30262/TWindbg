@@ -119,7 +119,8 @@ class ContextHandler(pykd.eventHandler):
             reg_color = self.set_reg_color(reg_name, color_changed=color.red, color_unchanged=color.lime)
             pykd.dprint(reg_color(reg_str), dml=True)
 
-            if pykd.isValid(reg_data): # reg_data is a pointer
+            # if reg_data is a valid virtual address and is able to be dereferenced, print it with print_ptrs(), or else just print it directly
+            if pykd.isValid(reg_data) and deref_ptr(reg_data):
                 self.print_ptrs(reg_data)
             else:
                 pykd.dprintln("{:#x}".format(reg_data))
