@@ -216,7 +216,7 @@ class ContextHandler(pykd.eventHandler):
         for _ in range(MAX_DEREF):
             val = deref_ptr(ptr)
             if val == None: # no more dereference
-                break
+                return ptr_values, is_cyclic
 
             ptr_values.append(val)
             # Check if the newly pushed value is in ptr_values[:-1:]
@@ -224,9 +224,7 @@ class ContextHandler(pykd.eventHandler):
             # Otherwise the newly pushed value will become the new pointer to be dereferenced next
             if val in ptr_values[:-1:]: 
                 is_cyclic = True
-                break
+                return ptr_values, is_cyclic
             else:
                 ptr = val
 
-        return ptr_values, is_cyclic
-    
