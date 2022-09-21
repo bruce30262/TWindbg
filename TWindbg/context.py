@@ -10,7 +10,7 @@ from utils import *
 ARCH = None
 PTRMASK = None
 PTRSIZE = None
-MAX_DEREF = 20
+MAX_DEREF_DEPTH = 20
 
 def init_arch():
     global ARCH, PTRMASK, PTRSIZE
@@ -213,20 +213,28 @@ class ContextHandler(pykd.eventHandler):
 
     def smart_dereference(self, ptr):
         ptr_values, is_cyclic = [ptr], False
-        for _ in range(MAX_DEREF):
-            val = deref_ptr(ptr)
-            if val == None: # no more dereference
-                break
+        deref_depth = 0
+        val = deref_ptr(ptr)
 
+        while self.can_chain_pointer(val, deref_depth, is_cyclic):
+            deref_depth += 1
             ptr_values.append(val)
             # Check if the newly pushed value is in ptr_values[:-1:]
             # If it does means there's a cyclic dereference in the current pointer chain
             # Otherwise the newly pushed value will become the new pointer to be dereferenced next
             if val in ptr_values[:-1:]: 
                 is_cyclic = True
-                break
             else:
-                ptr = val
+                val = deref_ptr(val)
 
         return ptr_values, is_cyclic
-    
+
+    def can_chain_pointer(self, val, deref_depth, is_cyclic):
+        """
+        Check if we can keep chaining the pointer list, which should match the following conditions:
+        - val ( The newly dereferenced value ) should not be None
+        - deref_depth ( deference depth ) should not exceed MAX_DEREF_DEPTH
+        - No cyclic dereference is detected
+        """
+        return ( val != None ) and ( deref_depth <= MAX_DEREF_DEPTH ) and not is_cyclic
+
