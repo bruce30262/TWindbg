@@ -1,3 +1,12 @@
+> [!Caution]
+> This project is no longer maintained due to several reasons:
+> * The official pykd is no longer updated.
+> * Windbg has become an excellent tool. It has a nice UI, and if you need telescope there's also a [script](https://github.com/0vercl0k/windbg-scripts/tree/master/telescope) that'll do the work. IMO there's no need to use this tool anymore.
+> 
+> I would like to thank anyone that has supported this project. I had a lot of fun writing this tool :)
+
+---
+
 [![Python 3](https://img.shields.io/badge/Python-3-green.svg)](https://github.com/bruce30262/TWindbg/)
 [![Code Climate](https://codeclimate.com/github/bruce30262/TWindbg/badges/gpa.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
 [![Issue Count](https://codeclimate.com/github/bruce30262/TWindbg/badges/issue_count.svg)](https://codeclimate.com/github/bruce30262/TWindbg)
